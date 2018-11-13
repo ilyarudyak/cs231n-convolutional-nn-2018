@@ -52,8 +52,10 @@ def softmax_loss_naive(W, X, y, reg):
                     dW[d, c] += P[c] * X[n, d]
 
     loss /= N
-    loss += reg * np.sum(W * W)
     dW /= N
+
+    # regularization
+    loss += reg * np.sum(W * W)
     dW += 2 * reg * W
 
     #############################################################################
