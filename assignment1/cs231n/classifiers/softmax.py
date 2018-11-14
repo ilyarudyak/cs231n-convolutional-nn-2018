@@ -97,6 +97,10 @@ def softmax_loss_vectorized(W, X, y, reg):
     dW = X.T.dot(P)
     dW /= N
 
+    # regularization
+    loss += reg * np.sum(W * W)
+    dW += 2 * reg * W
+
     #############################################################################
     #                          END OF YOUR CODE                                 #
     #############################################################################
