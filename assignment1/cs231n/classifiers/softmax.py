@@ -88,8 +88,14 @@ def softmax_loss_vectorized(W, X, y, reg):
     S_exp = np.exp(S)
     P = S_exp / np.sum(S_exp, axis=1, keepdims=True)
 
+    # loss calculation
     loss = -np.sum(np.log(P[np.arange(N), y]))
     loss /= N
+
+    # backward pass
+    P[np.arange(N), y] -= 1
+    dW = X.T.dot(P)
+    dW /= N
 
     #############################################################################
     #                          END OF YOUR CODE                                 #
