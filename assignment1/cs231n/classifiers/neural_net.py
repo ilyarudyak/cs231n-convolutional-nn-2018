@@ -75,7 +75,8 @@ class TwoLayerNet:
         # Store the result in the scores variable, which should be an array of      #
         # shape (N, C).                                                             #
         #############################################################################
-        pass
+        h1 = self.relu(X.dot(W1) + b1)
+        scores = h1.dot(W2) + b2
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
@@ -214,3 +215,35 @@ class TwoLayerNet:
         ###########################################################################
 
         return y_pred
+
+    def relu(self, x):
+        return np.maximum(0, x)
+
+    def softmax(self, x):
+        x -= np.max(x, axis=1, keepdims=True)
+        return np.exp(x) / np.sum(np.exp(x))
+
+
+if __name__ == '__main__':
+    input_size = 4
+    hidden_size = 10
+    num_classes = 3
+    num_inputs = 5
+
+
+    def init_toy_model():
+        np.random.seed(0)
+        return TwoLayerNet(input_size, hidden_size, num_classes, std=1e-1)
+
+
+    def init_toy_data():
+        np.random.seed(1)
+        X = 10 * np.random.randn(num_inputs, input_size)
+        y = np.array([0, 1, 2, 2, 1])
+        return X, y
+
+
+    net = init_toy_model()
+    X, y = init_toy_data()
+    scores = net.loss(X)
+    print(scores)
