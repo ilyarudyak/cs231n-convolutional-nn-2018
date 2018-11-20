@@ -75,8 +75,9 @@ class TwoLayerNet:
         # Store the result in the scores variable, which should be an array of      #
         # shape (N, C).                                                             #
         #############################################################################
-        h1 = self.relu(X.dot(W1) + b1)
-        scores = h1.dot(W2) + b2
+        hidden = X.dot(W1) + b1  # (N, H)
+        hidden_relu = self.relu(hidden)  # (N, H)
+        scores = hidden_relu.dot(W2) + b2  # (N, C)
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
@@ -93,7 +94,12 @@ class TwoLayerNet:
         # in the variable loss, which should be a scalar. Use the Softmax           #
         # classifier loss.                                                          #
         #############################################################################
-        pass
+        # S_exp = np.exp(scores)
+        # P = S_exp / np.sum(S_exp, axis=1, keepdims=True)
+        probs = self.softmax(scores)  # (N, C)
+        loss = -np.sum(np.log(probs[np.arange(N), y]))
+        loss /= N
+        loss += reg * np.sum(W1 * W1) + reg * np.sum(W2 * W2)
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
@@ -105,7 +111,30 @@ class TwoLayerNet:
         # and biases. Store the results in the grads dictionary. For example,       #
         # grads['W1'] should store the gradient on W1, and be a matrix of same size #
         #############################################################################
-        pass
+
+        # propagate through softmax
+        dscores = probs.copy()   # (N, C)
+        dscores[np.arange(N), y] -= 1
+        dscores /= N
+
+        grads['W2'] = np.dot(hidden_relu.T, dscores)
+        grads['b2'] = np.sum(dscores, axis=0, keepdims=True)
+
+        # propagate through 2nd hidden layer
+        dhidden_relu = dscores.dot(W2.T)  # (N, H)
+
+        # propagate through ReLU
+        dhidden = dhidden_relu.copy()
+        dhidden[hidden < 0] = 0
+
+        # propagate through 1st hidden layer
+        grads['W1'] = X.T.dot(dhidden)
+        grads['b1'] = np.sum(dhidden, axis=0, keepdims=True)
+
+        # add regularization
+        grads['W1'] += 2 * reg * W1
+        grads['W2'] += 2 * reg * W2
+
         #############################################################################
         #                              END OF YOUR CODE                             #
         #############################################################################
@@ -221,29 +250,8 @@ class TwoLayerNet:
 
     def softmax(self, x):
         x -= np.max(x, axis=1, keepdims=True)
-        return np.exp(x) / np.sum(np.exp(x))
+        return np.exp(x) / np.sum(np.exp(x), axis=1, keepdims=True)
 
 
 if __name__ == '__main__':
-    input_size = 4
-    hidden_size = 10
-    num_classes = 3
-    num_inputs = 5
-
-
-    def init_toy_model():
-        np.random.seed(0)
-        return TwoLayerNet(input_size, hidden_size, num_classes, std=1e-1)
-
-
-    def init_toy_data():
-        np.random.seed(1)
-        X = 10 * np.random.randn(num_inputs, input_size)
-        y = np.array([0, 1, 2, 2, 1])
-        return X, y
-
-
-    net = init_toy_model()
-    X, y = init_toy_data()
-    scores = net.loss(X)
-    print(scores)
+    pass
