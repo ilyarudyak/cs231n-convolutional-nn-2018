@@ -1,6 +1,8 @@
 from builtins import range
 import numpy as np
 
+from cs231n.gradient_check import eval_numerical_gradient
+
 
 def affine_forward(x, w, b):
     """
@@ -701,7 +703,7 @@ def svm_loss(x, y):
     return loss, dx
 
 
-def softmax_loss(x, y):
+def softmax_loss2(x, y):
     """
     Computes the loss and gradient for softmax classification.
 
@@ -725,3 +727,54 @@ def softmax_loss(x, y):
     dx[np.arange(N), y] -= 1
     dx /= N
     return loss, dx
+
+
+def softmax_loss(x, y):
+    """
+    Computes the loss and gradient for softmax classification.
+
+    Inputs:
+    - x: Input data, of shape (N, C) where x[i, j] is the score for the jth
+      class for the ith input.
+    - y: Vector of labels, of shape (N,) where y[i] is the label for x[i] and
+      0 <= y[i] < C
+
+    Returns a tuple of:
+    - loss: Scalar giving the loss
+    - dx: Gradient of the loss with respect to x
+    """
+    N, _ = x.shape
+    x_shift = x - np.max(x, axis=1, keepdims=True)
+
+    x_exp = np.exp(x_shift)
+    probs = x_exp / np.sum(x_exp, axis=1, keepdims=True)
+
+    # loss calculation
+    loss = -np.sum(np.log(probs[np.arange(N), y]))
+    loss /= N
+
+    # backward pass
+    dx = probs.copy()
+    dx[np.arange(N), y] -= 1
+    dx /= N
+
+    return loss, dx
+
+
+if __name__ == '__main__':
+    def rel_error(x, y):
+        """ returns relative error """
+        return np.max(np.abs(x - y) / (np.maximum(1e-8, np.abs(x) + np.abs(y))))
+
+    np.random.seed(231)
+    num_classes, num_inputs = 10, 50
+    x = 0.001 * np.random.randn(num_inputs, num_classes)
+    y = np.random.randint(num_classes, size=num_inputs)
+
+    dx_num = eval_numerical_gradient(lambda x: softmax_loss(x, y)[0], x, verbose=False)
+    loss, dx = softmax_loss(x, y)
+
+    # Test softmax_loss function. Loss should be close to 2.3 and dx error should be around e-8
+    print('\nTesting softmax_loss:')
+    print('loss: ', loss)
+    print('dx error: ', rel_error(dx_num, dx))
