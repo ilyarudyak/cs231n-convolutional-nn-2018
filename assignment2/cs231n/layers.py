@@ -572,7 +572,23 @@ def max_pool_forward_naive(x, pool_param):
     ###########################################################################
     # TODO: Implement the max-pooling forward pass                            #
     ###########################################################################
-    pass
+    # get dimensions and params
+    N, C, H, W = x.shape
+    pool_height = pool_param['pool_height']
+    pool_width = pool_param['pool_width']
+    stride = pool_param['stride']
+
+    # compute new dimensions
+    H_prime = int((H - pool_height)/stride) + 1
+    W_prime = int((W - pool_width)/stride) + 1
+
+    # main loop
+    out = np.zeros((N, C, H_prime, W_prime))
+    for hp in range(H_prime):
+        for wp in range(W_prime):
+            x_slice = x[:, :, hp * stride:(hp * stride + pool_height),
+                      wp * stride:(wp * stride + pool_width)]
+            out[:, :, hp, wp] = np.max(x_slice, axis=(2, 3))
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
