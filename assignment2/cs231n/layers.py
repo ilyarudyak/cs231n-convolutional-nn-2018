@@ -447,7 +447,7 @@ def conv_forward_naive(x, w, b, conv_param):
         
 
     During padding, 'pad' zeros should be placed symmetrically (i.e equally on both sides)
-    along the height and width axes of the input. Be careful not to modfiy the original
+    along the height and width axes of the input. Be careful not to modify the original
     input x directly.
 
     Returns a tuple of:
@@ -461,7 +461,27 @@ def conv_forward_naive(x, w, b, conv_param):
     # TODO: Implement the convolutional forward pass.                         #
     # Hint: you can use the function np.pad for padding.                      #
     ###########################################################################
-    pass
+    # get dimensions
+    stride, pad = conv_param['stride'], conv_param['pad']
+    N, C, H, W = x.shape
+    F, C, HH, WW = w.shape
+    H_prime = int(1 + (H + 2 * pad - HH) / stride)
+    W_prime = int(1 + (W + 2 * pad - WW) / stride)
+
+    # pad x with 0s
+    npad = [(0, 0), (0, 0), (pad, pad), (pad, pad)]
+    x_pad = np.pad(x, npad, mode='constant', constant_values=0)
+
+    # main loop
+    out = np.zeros((N, F, H_prime, W_prime))
+    for n in range(N):
+      for f in range(F):
+          for hp in range(H_prime):
+              for wp in range(W_prime):
+                  x_pad_cur = x_pad[n, :, hp*stride:(hp*stride+HH), wp*stride:(wp*stride+WW)]
+                  w_cur, b_cur = w[f, :, :, :], b[f]
+                  out[n, f, hp, wp] = np.sum(x_pad_cur * w_cur) + b_cur
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
