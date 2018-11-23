@@ -176,8 +176,11 @@ class FullyConnectedNet(object):
         # beta2, etc. Scale parameters should be initialized to ones and shift     #
         # parameters should be initialized to zeros.                               #
         ############################################################################
+        # hidden_dims = [H1, H2]; in our example in notebook we have L=3 hidden layers:
+        # l1(input_dim, H1)-relu-l2(H1, H2)-relu-l3(H2, C)-softmax
+        # that consistent with formula above: hidden_dims=2, L=hidden_dims+1
         net_dims = [input_dim] + hidden_dims + [num_classes]
-        L = self.num_layers - 1
+        L = self.num_layers
         for l in range(1, L+1):
             self.params['W' + str(l)] = np.random.randn(net_dims[l-1], net_dims[l]) * weight_scale
             self.params['b' + str(l)] = np.zeros(net_dims[l])
@@ -239,7 +242,7 @@ class FullyConnectedNet(object):
         # self.bn_params[1] to the forward pass for the second batch normalization #
         # layer, etc.                                                              #
         ############################################################################
-        L = self.num_layers - 1
+        L = self.num_layers
         out = X
         for l in range(1, L):
             out, cache[l] = affine_relu_forward(out, self.params['W' + str(l)], self.params['b' + str(l)])
@@ -267,9 +270,16 @@ class FullyConnectedNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         loss, dscores = softmax_loss(scores, y)
+
+        # add regularization to the loss function
+        for l in range(1, self.num_layers+1):
+            loss += 0.5 * self.reg * np.sum(self.params['W' + str(l)] * self.params['W' + str(l)])
+
         dout, grads['W' + str(L)], grads['b' + str(L)] = affine_backward(dscores, cache[L])
+        grads['W' + str(L)] += self.reg * self.params['W' + str(L)]
         for l in range(L-1, 0, -1):
             dout, grads['W' + str(l)], grads['b' + str(l)] = affine_relu_backward(dout, cache[l])
+            grads['W' + str(l)] += self.reg * self.params['W' + str(l)]
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
