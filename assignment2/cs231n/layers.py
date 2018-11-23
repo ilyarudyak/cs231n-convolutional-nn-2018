@@ -461,26 +461,31 @@ def conv_forward_naive(x, w, b, conv_param):
     # TODO: Implement the convolutional forward pass.                         #
     # Hint: you can use the function np.pad for padding.                      #
     ###########################################################################
-    # get dimensions
-    stride, pad = conv_param['stride'], conv_param['pad']
+    # Get the pad and stride
+    pad = conv_param['pad']
+    stride = conv_param['stride']
+
+    # Get dimensions
     N, C, H, W = x.shape
-    F, C, HH, WW = w.shape
-    H_prime = int(1 + (H + 2 * pad - HH) / stride)
-    W_prime = int(1 + (W + 2 * pad - WW) / stride)
+    F, _, HH, WW = w.shape
+    H_filter = int(1+(H+2*pad-HH)/stride)
+    W_filter = int(1+(W+2*pad-WW)/stride)
 
-    # pad x with 0s
-    npad = [(0, 0), (0, 0), (pad, pad), (pad, pad)]
-    x_pad = np.pad(x, npad, mode='constant', constant_values=0)
+    # Initialize output matrix with zeros
+    out = np.zeros((N, F, H_filter, W_filter))
 
-    # main loop
-    out = np.zeros((N, F, H_prime, W_prime))
-    for n in range(N):
-      for f in range(F):
-          for hp in range(H_prime):
-              for wp in range(W_prime):
-                  x_pad_cur = x_pad[n, :, hp*stride:(hp*stride+HH), wp*stride:(wp*stride+WW)]
-                  w_cur, b_cur = w[f, :, :, :], b[f]
-                  out[n, f, hp, wp] = np.sum(x_pad_cur * w_cur) + b_cur
+    # Specify padding location
+    npad = ((0,0), (0,0), (pad, pad), (pad, pad))
+
+    # Pad the input with zeros
+    x = np.pad(x, pad_width=npad, mode='constant', constant_values=0)
+
+    # Translate filters across the input
+    for i in range(N):
+      for z in range(F):
+          for j in range(H_filter):
+              for k in range(W_filter):
+                  out[i, z, j, k] = np.sum(x[i,:,j*stride:(j*stride+HH),k*stride:(k*stride+WW)]*w[z,:,:,:])+b[z]
 
     ###########################################################################
     #                             END OF YOUR CODE                            #
@@ -506,11 +511,42 @@ def conv_backward_naive(dout, cache):
     ###########################################################################
     # TODO: Implement the convolutional backward pass.                        #
     ###########################################################################
-    pass
+
+    # Unroll variables in cache
+    x, w, b, conv_param = cache
+
+    # Get the pad and stride
+    pad = conv_param['pad']
+    stride = conv_param['stride']
+
+    # Get dimensions
+    N, C, H, W = x.shape
+    F, _, HH, WW = w.shape
+    H_filter = dout.shape[2]
+    W_filter = dout.shape[3]
+
+    # Initialize matrices for gradients
+    dx = np.zeros_like(x)
+    dw = np.zeros_like(w)
+    db = np.zeros_like(b)
+
+    # Backpropagate dout through each input patch and each convolution filter
+    for i in range(N):
+      for z in range(F):
+          for j in range(H_filter):
+              h_start = j*stride
+              for k in range(W_filter):
+                  w_start = k*stride
+                  dx[i,:,h_start:(h_start+HH),w_start:(w_start+WW)] += w[z,:,:,:]*dout[i,z,j,k]
+                  dw[z,:,:,:] += x[i,:,h_start:(h_start+HH),w_start:(w_start+WW)]*dout[i,z,j,k]
+
+    # Gradient with respect to the biases
+    db = dout.sum(axis=(0,2,3))
+
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
-    return dx, dw, db
+    return dx[:,:,pad:-pad,pad:-pad], dw, db
 
 
 def max_pool_forward_naive(x, pool_param):
