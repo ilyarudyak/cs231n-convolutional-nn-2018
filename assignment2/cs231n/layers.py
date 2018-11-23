@@ -611,7 +611,31 @@ def max_pool_backward_naive(dout, cache):
     ###########################################################################
     # TODO: Implement the max-pooling backward pass                           #
     ###########################################################################
-    pass
+    # get dimensions and params
+    x, pool_param = cache
+    N, C, H, W = x.shape
+    pool_height = pool_param['pool_height']
+    pool_width = pool_param['pool_width']
+    stride = pool_param['stride']
+
+    # compute new dimensions
+    H_prime = int((H - pool_height)/stride) + 1
+    W_prime = int((W - pool_width)/stride) + 1
+
+    # initialize tensor for dx
+    dx = np.zeros_like(x)
+
+    for n in range(N):
+        for c in range(C):
+            for hp in range(H_prime):
+                for wp in range(W_prime):
+                    dx_slice = np.zeros((pool_height, pool_width))
+                    x_slice = x[n, c, hp * stride:(hp * stride + pool_height),
+                              wp * stride:(wp * stride + pool_width)]
+                    i, j = np.argwhere(x_slice == np.max(x_slice))[0]
+                    dx_slice[i, j] = dout[n, c, hp, wp]
+                    dx[n, c, hp * stride:(hp * stride + pool_height),
+                              wp * stride:(wp * stride + pool_width)] += dx_slice
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
