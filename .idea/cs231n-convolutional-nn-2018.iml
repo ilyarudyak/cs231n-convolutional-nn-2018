@@ -12,12 +12,14 @@
       <sourceFolder url="file://$MODULE_DIR$/assignment2/cs231n/datasets" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/assignment3" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lectures" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/assignment3/cs231n" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/assignment3/cs231n/classifiers" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
   <component name="TestRunnerService">
-    <option name="projectConfiguration" value="py.test" />
+    <option name="projectConfiguration" value="pytest" />
     <option name="PROJECT_TEST_RUNNER" value="py.test" />
   </component>
 </module>
