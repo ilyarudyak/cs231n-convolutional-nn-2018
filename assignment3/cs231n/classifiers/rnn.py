@@ -140,7 +140,11 @@ class CaptioningRNN(object):
         # Note also that you are allowed to make use of functions from layers.py   #
         # in your implementation, if needed.                                       #
         ############################################################################
+        # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
         pass
+
+        # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
@@ -205,7 +209,11 @@ class CaptioningRNN(object):
         # NOTE: we are still working over minibatches in this function. Also if   #
         # you are using an LSTM, initialize the first cell state to zeros.        #
         ###########################################################################
+        # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
         pass
+
+        # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
         #                             END OF YOUR CODE                             #
         ############################################################################
