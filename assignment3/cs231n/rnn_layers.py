@@ -53,6 +53,7 @@ def rnn_step_backward(dnext_h, cache):
     - dWh: Gradients of hidden-to-hidden weights, of shape (H, H)
     - db: Gradients of bias vector, of shape (H,)
     """
+    x, prev_h, Wx, Wh, next_h_lin, next_h = cache
     dx, dprev_h, dWx, dWh, db = None, None, None, None, None
     ##############################################################################
     # TODO: Implement the backward pass for a single step of a vanilla RNN.      #
@@ -62,7 +63,14 @@ def rnn_step_backward(dnext_h, cache):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    dtanh = 1 - next_h ** 2
+    din = dtanh * dnext_h
+
+    dx = din.dot(Wx.T)
+    dprev_h = din.dot(Wh.T)
+    dWh = prev_h.T.dot(din)
+    dWx = x.T.dot(din)
+    db = np.sum(din, axis=0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
