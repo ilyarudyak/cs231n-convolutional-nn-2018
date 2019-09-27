@@ -105,7 +105,18 @@ def rnn_forward(x, h0, Wx, Wh, b):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    N, T, D = x.shape
+    N, H = h0.shape
+
+    h = np.zeros((N, T, H))
+    cache = {}
+
+    ht = h0
+    for t in range(T):
+        xt = x[:, t, :]
+        ht, cache_t = rnn_step_forward(xt, ht, Wx, Wh, b)
+        h[:, t, :] = ht
+        cache[t] = cache_t
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
