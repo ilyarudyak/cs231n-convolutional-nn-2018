@@ -1,12 +1,4 @@
-from __future__ import print_function, division
-from builtins import range
 import numpy as np
-
-
-"""
-This file defines layer types that are commonly used for recurrent neural
-networks.
-"""
 
 
 def rnn_step_forward(x, prev_h, Wx, Wh, b):
@@ -28,7 +20,6 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
     - next_h: Next hidden state, of shape (N, H)
     - cache: Tuple of values needed for the backward pass.
     """
-    next_h, cache = None, None
     ##############################################################################
     # TODO: Implement a single forward step for the vanilla RNN. Store the next  #
     # hidden state and any values you need for the backward pass in the next_h   #
@@ -36,7 +27,9 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    next_h_lin = prev_h.dot(Wh) + x.dot(Wx) + b
+    next_h = np.tanh(next_h_lin)
+    cache = (x, prev_h, Wx, Wh, next_h_lin, next_h)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################

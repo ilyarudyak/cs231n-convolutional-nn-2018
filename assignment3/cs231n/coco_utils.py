@@ -2,8 +2,10 @@ from builtins import range
 import os, json
 import numpy as np
 import h5py
+from pathlib import Path
 
-BASE_DIR = 'cs231n/datasets/coco_captioning'
+BASE_DIR = Path.home() / 'data/coco_captioning'
+
 
 def load_coco_data(base_dir=BASE_DIR,
                    max_train=None,
