@@ -74,7 +74,6 @@ class CaptioningRNN(object):
         for k, v in self.params.items():
             self.params[k] = v.astype(self.dtype)
 
-
     def loss(self, features, captions):
         """
         Compute training-time loss for the RNN. We input image features and
@@ -142,7 +141,36 @@ class CaptioningRNN(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # FORWARD PASS
+
+        # (1) affine transformation
+        affine_out, affine_cache = affine_forward(features, W_proj, b_proj)
+
+        # (2) word embedding layer
+        captions_in_embed, embed_cache = word_embedding_forward(captions_in, W_embed)
+
+        # (3) rnn layer
+        hidden_rnn, rnn_cache = rnn_forward(captions_in_embed, affine_out, Wx, Wh, b)
+
+        # (4) (temporal) affine transformation
+        scores, scores_cache = temporal_affine_forward(hidden_rnn, W_vocab, b_vocab)
+
+        # (5) (temporal) softmax to compute loss
+        loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
+
+        # BACKWARD PASS
+
+        # (4) (temporal) affine transformation
+        dhidden_rnn, grads['W_vocab'], grads['b_vocab'] = temporal_affine_backward(dscores, scores_cache)
+
+        # (3) rnn layer
+        dcaptions_in_embed, daffine_out, grads['Wx'], grads['Wh'], grads['b'] = rnn_backward(dhidden_rnn, rnn_cache)
+
+        # (2) word embedding layer
+        grads['W_embed'] = word_embedding_backward(dcaptions_in_embed, embed_cache)
+
+        # (1) affine transformation
+        _, grads['W_proj'], grads['b_proj'] = affine_backward(daffine_out, affine_cache)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
@@ -150,7 +178,6 @@ class CaptioningRNN(object):
         ############################################################################
 
         return loss, grads
-
 
     def sample(self, features, max_length=30):
         """
@@ -211,7 +238,25 @@ class CaptioningRNN(object):
         ###########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-        pass
+        # affine transformation
+        hidden, _ = affine_forward(features, W_proj, b_proj)
+
+        # embed the start token
+        word_embed, _ = word_embedding_forward(self._start, W_embed)
+
+        for i in range(max_length):
+
+            # (2) rnn step forward (NOT rnn forward)
+            hidden, _ = rnn_step_forward(word_embed, hidden, Wx, Wh, b)
+
+            # (3) affine forward
+            scores, _ = affine_forward(hidden, W_vocab, b_vocab)
+
+            # (4) select the word with the highest score (NOT sample)
+            captions[:, i] = np.argmax(scores, axis=1)
+
+            # (1) update word_embed
+            word_embed, _ = word_embedding_forward(captions[:, i], W_embed)
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################

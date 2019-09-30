@@ -77,7 +77,9 @@ def decode_captions(captions, idx_to_word):
     return decoded
 
 
-def sample_coco_minibatch(data, batch_size=100, split='train'):
+def sample_coco_minibatch(data, batch_size=100, split='train', seed=42):
+    if seed:
+        np.random.seed(42)
     split_size = data['%s_captions' % split].shape[0]
     mask = np.random.choice(split_size, batch_size)
     captions = data['%s_captions' % split][mask]
