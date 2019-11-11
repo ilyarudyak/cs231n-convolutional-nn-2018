@@ -35,13 +35,13 @@ Open up either PyTorch.ipynb or TensorFlow.ipynb. There, you will learn how the 
 ## Assignment 3
 (we use assignments from Spring 2019, but they are the same)
 
-### Q1: Image Captioning with Vanilla RNNs (25 points) NumPy
+### Q1: Image Captioning with Vanilla RNNs (25 points) NumPy  --DONE
 The Jupyter notebook RNN_Captioning.ipynb will walk you through the implementation of an image captioning system on MS-COCO using vanilla recurrent networks.
 
-### Q2: Image Captioning with LSTMs (30 points) NumPy
+### Q2: Image Captioning with LSTMs (30 points) NumPy --IN PROGRESS
 The Jupyter notebook LSTM_Captioning.ipynb will walk you through the implementation of Long-Short Term Memory (LSTM) RNNs, and apply them to image captioning on MS-COCO.
 
-### Q3: Network Visualization: Saliency maps, Class Visualization, and Fooling Images (15 points) --IN PROGRESS 
+### Q3: Network Visualization: Saliency maps, Class Visualization, and Fooling Images (15 points) --DONE 
 The Jupyter notebooks NetworkVisualization-TensorFlow.ipynb /NetworkVisualization-PyTorch.ipynb will introduce the pretrained SqueezeNet model, compute gradients with respect to images, and use them to produce saliency maps and fooling images. Please complete only one of the notebooks (TensorFlow or PyTorch). No extra credit will be awardeded if you complete both notebooks.
 
 ### Q4: Style Transfer (15 points) --DONE
